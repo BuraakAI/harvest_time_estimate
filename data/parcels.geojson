@@ -1,0 +1,355 @@
+{
+ "type": "FeatureCollection",
+ "name": "cumra_demo_parcels",
+ "comment": "Cumra/Konya kislik bugday DEMO parselleri. Geometriler OpenStreetMap landuse=farmland poligonlarindan alindi (gercek tarim arazisi); demo_params sentetik fenolojiyi surer.",
+ "crs": {
+  "type": "name",
+  "properties": {
+   "name": "EPSG:4326"
+  }
+ },
+ "features": [
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "cumra-01",
+    "name": "Çumra-01",
+    "crop_code": "WHEAT_WINTER",
+    "region_code": "TR-42-Konya-Cumra",
+    "area_ha": 4.5,
+    "planted_at": "2025-10-22",
+    "osm_way_id": 217346757,
+    "demo_params": {
+     "sos_doy": 68,
+     "pos_doy": 119,
+     "eos_doy": 182,
+     "max_ndvi": 0.83,
+     "base_ndvi": 0.15
+    }
+   },
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       32.763355,
+       37.588608
+      ],
+      [
+       32.764438,
+       37.587849
+      ],
+      [
+       32.766142,
+       37.589347
+      ],
+      [
+       32.764484,
+       37.59055
+      ],
+      [
+       32.762746,
+       37.58905
+      ],
+      [
+       32.763355,
+       37.588608
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "cumra-02",
+    "name": "Çumra-02",
+    "crop_code": "WHEAT_WINTER",
+    "region_code": "TR-42-Konya-Cumra",
+    "area_ha": 3.8,
+    "planted_at": "2025-10-25",
+    "osm_way_id": 217346760,
+    "demo_params": {
+     "sos_doy": 71,
+     "pos_doy": 121,
+     "eos_doy": 188,
+     "max_ndvi": 0.8,
+     "base_ndvi": 0.14
+    }
+   },
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       32.764535,
+       37.590584
+      ],
+      [
+       32.766155,
+       37.589386
+      ],
+      [
+       32.767657,
+       37.590662
+      ],
+      [
+       32.76608,
+       37.591868
+      ],
+      [
+       32.764535,
+       37.590584
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "cumra-03",
+    "name": "Çumra-03",
+    "crop_code": "WHEAT_WINTER",
+    "region_code": "TR-42-Konya-Cumra",
+    "area_ha": 8.8,
+    "planted_at": "2025-10-18",
+    "osm_way_id": 217346761,
+    "demo_params": {
+     "sos_doy": 66,
+     "pos_doy": 118,
+     "eos_doy": 195,
+     "max_ndvi": 0.85,
+     "base_ndvi": 0.16
+    }
+   },
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       32.764492,
+       37.590652
+      ],
+      [
+       32.767989,
+       37.593594
+      ],
+      [
+       32.766273,
+       37.594817
+      ],
+      [
+       32.762925,
+       37.591842
+      ],
+      [
+       32.764492,
+       37.590652
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "cumra-04",
+    "name": "Çumra-04",
+    "crop_code": "WHEAT_WINTER",
+    "region_code": "TR-42-Konya-Cumra",
+    "area_ha": 2.8,
+    "planted_at": "2025-11-02",
+    "osm_way_id": 217346762,
+    "demo_params": {
+     "sos_doy": 74,
+     "pos_doy": 124,
+     "eos_doy": 201,
+     "max_ndvi": 0.78,
+     "base_ndvi": 0.13
+    }
+   },
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       32.762789,
+       37.591937
+      ],
+      [
+       32.761222,
+       37.593077
+      ],
+      [
+       32.762317,
+       37.594046
+      ],
+      [
+       32.763958,
+       37.592898
+      ],
+      [
+       32.762842,
+       37.59192
+      ],
+      [
+       32.762789,
+       37.591937
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "cumra-05",
+    "name": "Çumra-05",
+    "crop_code": "WHEAT_WINTER",
+    "region_code": "TR-42-Konya-Cumra",
+    "area_ha": 2.3,
+    "planted_at": "2025-10-20",
+    "osm_way_id": 217346764,
+    "demo_params": {
+     "sos_doy": 69,
+     "pos_doy": 120,
+     "eos_doy": 185,
+     "max_ndvi": 0.82,
+     "base_ndvi": 0.15
+    }
+   },
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       32.761051,
+       37.590278
+      ],
+      [
+       32.760206,
+       37.590931
+      ],
+      [
+       32.761944,
+       37.592459
+      ],
+      [
+       32.762791,
+       37.591857
+      ],
+      [
+       32.761099,
+       37.590367
+      ],
+      [
+       32.761051,
+       37.590278
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "cumra-06",
+    "name": "Çumra-06",
+    "crop_code": "WHEAT_WINTER",
+    "region_code": "TR-42-Konya-Cumra",
+    "area_ha": 4.8,
+    "planted_at": "2025-11-05",
+    "osm_way_id": 217346765,
+    "demo_params": {
+     "sos_doy": 76,
+     "pos_doy": 126,
+     "eos_doy": 206,
+     "max_ndvi": 0.79,
+     "base_ndvi": 0.14
+    }
+   },
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       32.766112,
+       37.591885
+      ],
+      [
+       32.767657,
+       37.590703
+      ],
+      [
+       32.769652,
+       37.59237
+      ],
+      [
+       32.768026,
+       37.593545
+      ],
+      [
+       32.766112,
+       37.591885
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "cumra-07",
+    "name": "Çumra-07",
+    "crop_code": "WHEAT_WINTER",
+    "region_code": "TR-42-Konya-Cumra",
+    "area_ha": 4.4,
+    "planted_at": "2025-10-28",
+    "osm_way_id": 217346766,
+    "demo_params": {
+     "sos_doy": 72,
+     "pos_doy": 122,
+     "eos_doy": 192,
+     "max_ndvi": 0.81,
+     "base_ndvi": 0.15
+    }
+   },
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       32.762706,
+       37.58909
+      ],
+      [
+       32.76446,
+       37.590577
+      ],
+      [
+       32.762848,
+       37.591805
+      ],
+      [
+       32.761179,
+       37.590372
+      ],
+      [
+       32.761155,
+       37.590286
+      ],
+      [
+       32.761185,
+       37.590209
+      ],
+      [
+       32.762706,
+       37.58909
+      ]
+     ]
+    ]
+   }
+  }
+ ]
+}

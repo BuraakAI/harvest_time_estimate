@@ -1,0 +1,3 @@
+# Canlı (GEE) modu için ek bağımlılık — demo için GEREKMEZ.
+# Kurulum: pip install -r requirements-gee.txt && earthengine authenticate
+earthengine-api>=0.1.400

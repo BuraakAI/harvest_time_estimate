@@ -1,0 +1,9 @@
+# HasadHaber MVP — Streamlit demosu
+# Python 3.11+ önerilir
+streamlit>=1.36
+numpy>=1.26
+pandas>=2.1
+scipy>=1.11
+plotly>=5.20
+folium>=0.16
+streamlit-folium>=0.21

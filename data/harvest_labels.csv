@@ -1,0 +1,8 @@
+parcel_id,season_year,harvest_date,source,confidence
+cumra-01,2026,2026-07-02,synthetic_demo,0.9
+cumra-02,2026,2026-07-10,synthetic_demo,0.7
+cumra-03,2026,2026-07-16,synthetic_demo,0.8
+cumra-04,2026,2026-07-21,synthetic_demo,0.9
+cumra-05,2026,2026-07-04,synthetic_demo,0.6
+cumra-06,2026,2026-07-29,synthetic_demo,0.8
+cumra-07,2026,2026-07-12,synthetic_demo,0.7
