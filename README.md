@@ -79,8 +79,7 @@ harvest_time_estimate/
 ├── core/                  # Veri kaynağı, fenoloji, kural motoru
 ├── ml/                    # Backtest ve doğrulama
 ├── data/                  # Parseller, etiketler, GEE cache
-├── tests/                 # pytest suite
-└── docs/staj-omurga/      # Staj dokümantasyonu (vizyon, mimari, görevler, T-207)
+└── tests/                 # pytest suite
 ```
 
 ## Hızlı başlangıç (özet)
