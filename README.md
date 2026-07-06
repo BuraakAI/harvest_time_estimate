@@ -2,21 +2,98 @@
 
 > Uydu zaman serisinden bir tarlanın fenolojik olgunluğunu okuyup parsel bazında
 > **"hasada kaç gün kaldı?"** sorusuna ±gün cinsinden cevap üreten karar destek demosu.
-> Pilot: **kışlık buğday · Konya / Çumra**. Bu, staj omurgasının (`../staj-omurga/`)
-> Faz 2 (MVP-V1) çıktısıdır.
+> Pilot: **kışlık buğday · Konya / Çumra**. Staj omurgasının Faz 2 (MVP-V1) çıktısıdır.
 
-## Hızlı başlangıç
+## Gereksinimler
+
+- **Python 3.11+** (3.11 önerilir)
+- macOS / Linux / Windows
+- İnternet (yalnız **Canlı GEE** modu için; Demo modu tamamen offline çalışır)
+
+## Kurulum ve çalıştırma
+
+### 1. Repoyu klonla
 
 ```bash
-cd hasat-zamani
-python -m venv .venv && source .venv/bin/activate      # Windows: .venv\Scripts\activate
+git clone https://github.com/BuraakAI/harvest_time_estimate.git
+cd harvest_time_estimate
+```
+
+### 2. Sanal ortam oluştur ve bağımlılıkları kur
+
+```bash
+python3 -m venv .venv
+source .venv/bin/activate          # Windows: .venv\Scripts\activate
+pip install --upgrade pip
+pip install -r requirements.txt
+```
+
+> **Not:** `streamlit` global PATH'te olmayabilir. Komutları **her zaman** sanal ortam
+> aktifken (`source .venv/bin/activate`) veya `.venv/bin/` önekiyle çalıştırın.
+
+### 3. Uygulamayı başlat
+
+```bash
+# Sanal ortam aktifken:
+streamlit run app.py
+
+# veya sanal ortam açmadan (macOS/Linux):
+.venv/bin/streamlit run app.py
+```
+
+Tarayıcıda `http://localhost:8501` açılır.
+
+**`zsh: command not found: streamlit` hatası** alırsanız → sanal ortamı aktifleştirmediniz
+veya `pip install` yapmadınız. Yukarıdaki adım 2'yi tekrarlayın.
+
+### 4. (İsteğe bağlı) Canlı uydu verisi — Google Earth Engine
+
+Demo modu kimlik bilgisi gerektirmez. Gerçek Sentinel-2 için:
+
+```bash
+source .venv/bin/activate
+pip install -r requirements-gee.txt
+earthengine authenticate              # tarayıcıda Google hesabıyla izin ver
+echo "<cloud-proje-id>" > data/ee_project.txt   # örn. vault-501610
+streamlit run app.py
+```
+
+Sidebar'dan **"Canlı (GEE)"** seçin. İlk çalıştırmada 10 parsel için veri çekilir ve
+`data/cache/` altına önbelleğe alınır (sonraki açılışlar hızlıdır).
+
+### 5. Testler ve CLI araçları
+
+```bash
+source .venv/bin/activate
+
+python -m pytest -q                    # 27 birim test
+python -m ml.evaluate                  # backtest özeti (demo veri)
+python -m ml.validate_t207             # T-207 doğrulama tablosu (GEE gerekir)
+```
+
+## Proje yapısı
+
+```
+harvest_time_estimate/
+├── app.py                 # Streamlit arayüzü (giriş noktası)
+├── core/                  # Veri kaynağı, fenoloji, kural motoru
+├── ml/                    # Backtest ve doğrulama
+├── data/                  # Parseller, etiketler, GEE cache
+├── tests/                 # pytest suite
+└── docs/staj-omurga/      # Staj dokümantasyonu (vizyon, mimari, görevler, T-207)
+```
+
+## Hızlı başlangıç (özet)
+
+```bash
+git clone https://github.com/BuraakAI/harvest_time_estimate.git && cd harvest_time_estimate
+python3 -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt
 streamlit run app.py
 ```
 
-Tarayıcı `http://localhost:8501` adresinde açılır. **Hiçbir kimlik bilgisi gerekmez** —
-varsayılan **Demo modu** Çumra için 10 örnek parselde gerçekçi sentetik buğday
-fenolojisi üretir (offline demo paketi her zaman hazır; `01_VIZYON` anti-vizyonu).
+Varsayılan **Demo modu** Çumra için 10 örnek parselde gerçekçi sentetik buğday
+fenolojisi üretir — **hiçbir kimlik bilgisi gerekmez**.
 
 ## Ne yapıyor?
 
