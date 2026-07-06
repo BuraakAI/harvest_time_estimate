@@ -79,7 +79,18 @@ st.sidebar.title("🌾 HasadHaber")
 st.sidebar.caption("Hasat zamanı karar destek sistemi — MVP demo")
 
 mode = st.sidebar.radio("Veri kaynağı", ["Demo (sentetik)", "Canlı (GEE)"], index=0)
-source = DemoDataSource() if mode.startswith("Demo") else GEEDataSource()
+if mode.startswith("Demo"):
+    source = DemoDataSource()
+else:
+    gee = GEEDataSource()
+    ready, why = gee.check_ready()
+    if ready:
+        source = gee
+    else:
+        # Zarif düşüş: GEE hazır değilse çökme, Demo ile devam et + net uyarı.
+        source = DemoDataSource()
+        mode = "Demo (sentetik)"
+        st.sidebar.error(f"Canlı (GEE) kullanılamıyor, Demo moduna dönüldü.\n\n{why}")
 
 season = st.sidebar.number_input("Sezon yılı", min_value=2020, max_value=2030,
                                  value=DEFAULT_TODAY.year, step=1)
@@ -92,10 +103,6 @@ st.sidebar.markdown(
     "V1 kural tabanlı, etiketsiz çalışır (Sedano 2025). "
     "Belirsizlik güven skorunda görünür."
 )
-
-if mode.startswith("Canlı") and not getattr(source, "_available", False):
-    st.sidebar.warning("GEE kütüphanesi/kimlik bilgisi bulunamadı. README → 'Canlı moda geçiş'. "
-                       "Şimdilik Demo modu seçili tutun.")
 
 parcels = _load()
 
@@ -209,9 +216,14 @@ with tab_map:
                              name="NDVI (yumuşatılmış)", line=dict(color="#2ca02c")))
     fig.add_trace(go.Scatter(x=ndmi_s.index, y=ndmi_s.values, mode="lines",
                              name="NDMI (yumuşatılmış)", line=dict(color="#1f77b4", dash="dot")))
-    fig.add_trace(go.Scatter(x=obs["date"], y=obs["vh"], mode="lines",
-                             name="VH (radar, dB)", line=dict(color="#999", width=1)),
-                  secondary_y=True)
+    has_vh = obs["vh"].notna().any()
+    if has_vh:
+        fig.add_trace(go.Scatter(x=obs["date"], y=obs["vh"], mode="lines",
+                                 name="VH (radar, dB)", line=dict(color="#999", width=1)),
+                      secondary_y=True)
+    else:
+        st.caption("ℹ️ Bu parsel-sezon için Sentinel-1 VH (radar) verisi yok — "
+                   "grafik yalnız optik indekslerle çizildi (S1 zorunlu değil, Faz 4).")
 
     # İşaretler: POS, bugün, tahmini hasat ± güven aralığı
     r = pred.reason_signals

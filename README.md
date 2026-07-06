@@ -15,7 +15,7 @@ streamlit run app.py
 ```
 
 Tarayıcı `http://localhost:8501` adresinde açılır. **Hiçbir kimlik bilgisi gerekmez** —
-varsayılan **Demo modu** Çumra için 7 örnek parselde gerçekçi sentetik buğday
+varsayılan **Demo modu** Çumra için 10 örnek parselde gerçekçi sentetik buğday
 fenolojisi üretir (offline demo paketi her zaman hazır; `01_VIZYON` anti-vizyonu).
 
 ## Ne yapıyor?
@@ -30,7 +30,7 @@ fenolojisi üretir (offline demo paketi her zaman hazır; `01_VIZYON` anti-vizyo
 
 | Dosya | Rol | Omurga referansı |
 |---|---|---|
-| `core/datasource.py` | Demo (sentetik) + GEE (stub) veri kaynağı | `04_TEKNIK_MIMARI §2-3` |
+| `core/datasource.py` | Demo (sentetik) + GEE (gerçek Sentinel-2/S1, tam adaptör) veri kaynağı | `04_TEKNIK_MIMARI §2-3` |
 | `core/indices.py` | NDVI/NDMI/NDRE (canlı mod) | `05_VERI §5` |
 | `core/phenology.py` | Savitzky-Golay + SOS/POS/EOS + eğim | `05_VERI §4, §6` |
 | `core/rules.py` | Kural tabanlı tahmin + 4 bileşenli güven skoru | `05_VERI §7.1`, `04 §7.1` |
@@ -60,7 +60,7 @@ için bu dosyaya **saha hasat tarihleri** (üretici/kooperatif/biçerdöver) gir
 ## Testler
 
 ```bash
-python -m pytest -q     # 6 test: kural motoru + değerlendirme çatısı
+python -m pytest -q     # 27 test: kural motoru + fenoloji + veri kaynağı + indeksler + değerlendirme
 ```
 
 ## Canlı moda geçiş (gerçek Sentinel-2, GEE)
@@ -74,6 +74,7 @@ python -m pytest -q     # 6 test: kural motoru + değerlendirme çatısı
    pip install -r requirements-gee.txt
    earthengine authenticate            # tarayıcıda izin
    export EE_PROJECT=<cloud-proje-id>  # GEE artık proje ister
+   # veya kalıcı olarak: proje kimliğini data/ee_project.txt dosyasına yazın (gitignore'da)
    ```
 3. **Çalıştır:** `streamlit run app.py` → sidebar'dan **"Canlı (GEE)"** seç. Parsel
    poligonu ile `COPERNICUS/S2_SR_HARMONIZED`'dan SCL bulut maskeli NDVI/NDMI +

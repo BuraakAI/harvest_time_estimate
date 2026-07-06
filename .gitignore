@@ -4,4 +4,5 @@ __pycache__/
 .pytest_cache/
 .streamlit/secrets.toml
 data/cache/
+data/ee_project.txt
 .DS_Store

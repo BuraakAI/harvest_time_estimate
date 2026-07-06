@@ -43,9 +43,17 @@ class EvalResult:
     rows: pd.DataFrame           # parsel-bazlı ham kayıtlar
 
 
-def load_labels(path: Path | None = None) -> pd.DataFrame:
+def load_labels(path: Path | None = None, min_confidence: float = 0.0) -> pd.DataFrame:
+    """Etiketleri okur; `confidence` alanı düşük (belirsiz) kayıtları elemeye yarar.
+
+    Saha etiketi geldiğinde kaynak güvenilirliği (üretici beyanı vs biçerdöver
+    kaydı) bu alanla ifade edilir; `min_confidence` ile eşiklenir (05_VERI §3).
+    """
     path = path or (DATA_DIR / "harvest_labels.csv")
-    return pd.read_csv(path, parse_dates=["harvest_date"])
+    df = pd.read_csv(path, parse_dates=["harvest_date"])
+    if "confidence" not in df.columns:
+        df["confidence"] = 1.0
+    return df[df["confidence"] >= min_confidence].reset_index(drop=True)
 
 
 def backtest(parcels, labels: pd.DataFrame, source,

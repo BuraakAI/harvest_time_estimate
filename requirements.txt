@@ -7,3 +7,6 @@ scipy>=1.11
 plotly>=5.20
 folium>=0.16
 streamlit-folium>=0.21
+
+# --- geliştirme / test ---
+pytest>=8.0

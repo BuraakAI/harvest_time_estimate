@@ -11,6 +11,7 @@ kural tabanlı tahıl hasadı tespiti; bkz. 12_LITERATUR §3).
 """
 from __future__ import annotations
 
+import calendar
 from datetime import date, timedelta
 
 import numpy as np
@@ -152,5 +153,6 @@ def _confidence(m: PhenoMetrics, signal_ok: bool) -> tuple[float, dict]:
 
 
 def _doy_to_date(year: int, doy: int) -> date:
-    doy = int(np.clip(doy, 1, 365))
+    max_doy = 366 if calendar.isleap(year) else 365
+    doy = int(np.clip(doy, 1, max_doy))
     return date(year, 1, 1) + timedelta(days=doy - 1)

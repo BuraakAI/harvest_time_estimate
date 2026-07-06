@@ -59,8 +59,7 @@ def compute_metrics(frame: pd.DataFrame, today: pd.Timestamp) -> PhenoMetrics:
     ndvi_s = smooth_series(obs, "ndvi")
     ndmi_s = smooth_series(obs, "ndmi")
 
-    max_ndvi = float(np.nanmax(ndvi_s.values)) if len(ndvi_s) else float("nan")
-    pos_idx = int(np.nanargmax(ndvi_s.values)) if len(ndvi_s) else None
+    max_ndvi, pos_idx = _peak(ndvi_s.values)
     pos_date = ndvi_s.index[pos_idx] if pos_idx is not None else None
     pos_doy = _doy(pos_date) if pos_date is not None else None
     days_since_pos = int((today - pos_date).days) if pos_date is not None else None
@@ -88,6 +87,22 @@ def compute_metrics(frame: pd.DataFrame, today: pd.Timestamp) -> PhenoMetrics:
         ndmi_drop_last_14d=ndmi_drop_last_14d, n_obs=n_obs,
         cloud_gap_days=cloud_gap_days,
     )
+
+
+def _peak(vals: np.ndarray, tol: float = 0.01) -> tuple[float, int | None]:
+    """Yumuşatılmış serideki tepe (POS) — boş/tümü-NaN girdiye ve platoya dayanıklı.
+
+    Kışlık buğdayda NDVI tepede platolaşır; senesens platonun bitişinde başlar.
+    Bu yüzden maksimuma `tol` içinde kalan bölgenin SON indeksi POS sayılır —
+    tek noktalık erken gürültü sıçraması POS'u öne çekmez, `days_since_pos`
+    senesens süresini ölçer (kural motoru bunun üzerine kuruludur).
+    """
+    vals = np.asarray(vals, float)
+    if vals.size == 0 or np.all(np.isnan(vals)):
+        return float("nan"), None
+    max_v = float(np.nanmax(vals))
+    near = np.flatnonzero(vals >= max_v - tol)
+    return max_v, int(near[-1])
 
 
 def _first_cross_doy(series: pd.Series, level: float, rising: bool) -> int | None:

@@ -12,6 +12,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import logging
 from datetime import date
 from pathlib import Path
 
@@ -20,6 +21,8 @@ import pandas as pd
 
 from . import RANDOM_STATE
 from .models import Parcel, TimeSeries
+
+logger = logging.getLogger(__name__)
 
 
 def _stable_seed(text: str) -> int:
@@ -112,6 +115,19 @@ class DemoDataSource:
         return TimeSeries(parcel.id, season_year, df, n_obs, cloud_pct)
 
 
+def _read_project_file() -> str | None:
+    """EE_PROJECT ayarlanmamışsa data/ee_project.txt dosyasından okur.
+
+    Streamlit'i `export EE_PROJECT=...` yapmadan başlatan kullanıcı için
+    kalıcı, repo-yerel yapılandırma (dosya .gitignore'da).
+    """
+    path = DATA_DIR / "ee_project.txt"
+    if path.exists():
+        text = path.read_text(encoding="utf-8").strip()
+        return text or None
+    return None
+
+
 # --- GEE (gerçek veri) kaynağı ------------------------------------------------
 class GEEDataSource:
     """Google Earth Engine ile gerçek Sentinel-2 (+ Sentinel-1) zaman serisi.
@@ -139,13 +155,33 @@ class GEEDataSource:
 
     def __init__(self, project: str | None = None) -> None:
         import os
-        self.project = project or os.environ.get("EE_PROJECT")
+        self.project = project or os.environ.get("EE_PROJECT") or _read_project_file()
         self._initialized = False
+        self._ready_result: tuple[bool, str | None] | None = None
         try:
             import ee  # noqa: F401
             self._available = True
         except Exception:
             self._available = False
+
+    def check_ready(self) -> tuple[bool, str | None]:
+        """Kütüphane + kimlik + proje hazır mı? Hata fırlatmadan (ok, mesaj) döner.
+
+        UI'nin zarif düşüşü için: hazır değilse app Demo moduna düşer (app.py).
+        Sonuç örnek üzerinde önbelleklenir; her rerun'da GEE'ye gidilmez.
+        """
+        if self._ready_result is not None:
+            return self._ready_result
+        if not self._available:
+            self._ready_result = (False, "earthengine-api kurulu değil. "
+                                          "`pip install -r requirements-gee.txt` çalıştırın.")
+            return self._ready_result
+        try:
+            self._ensure_initialized()
+            self._ready_result = (True, None)
+        except RuntimeError as exc:
+            self._ready_result = (False, str(exc))
+        return self._ready_result
 
     # --- başlatma ---
     def _ensure_initialized(self) -> None:
@@ -248,8 +284,11 @@ class GEEDataSource:
                 return pd.DataFrame(columns=["date", "vh"])
             df["date"] = pd.to_datetime(df["date"])
             return df.groupby("date", as_index=False)[["vh"]].mean()
-        except Exception:
-            return pd.DataFrame(columns=["date", "vh"])  # S1 zorunlu değil (Faz 4)
+        except Exception as exc:
+            # S1 zorunlu değil (Faz 4) — ama sessizce kaybolmasın: logla,
+            # UI grafik altında "radar verisi yok" notu gösterir (app.py).
+            logger.warning("Sentinel-1 VH çekilemedi, VH boş bırakıldı: %s", exc)
+            return pd.DataFrame(columns=["date", "vh"])
 
     # --- önbellek (CSV) ---
     def _cache_path(self, parcel_id: str, season_year: int) -> Path:
