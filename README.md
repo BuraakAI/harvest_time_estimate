@@ -1,169 +1,136 @@
-# HasadHaber — Hasat Zamanı Karar Destek Sistemi (MVP)
+# HasadHaber
 
-> Uydu zaman serisinden bir tarlanın fenolojik olgunluğunu okuyup parsel bazında
-> **"hasada kaç gün kaldı?"** sorusuna ±gün cinsinden cevap üreten karar destek demosu.
-> Pilot: **kışlık buğday · Konya / Çumra**. Staj omurgasının Faz 2 (MVP-V1) çıktısıdır.
+[![Tests](https://github.com/BuraakAI/harvest_time_estimate/actions/workflows/tests.yml/badge.svg)](https://github.com/BuraakAI/harvest_time_estimate/actions/workflows/tests.yml)
+[![Python 3.11+](https://img.shields.io/badge/python-3.11%2B-3776AB.svg)](https://www.python.org/)
+[![License: Apache-2.0](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE)
 
-## Gereksinimler
+An open, reproducible decision-support prototype that estimates a field's
+harvest window from satellite time series. The current pilot models winter
+wheat parcels in Çumra, Konya, Türkiye.
 
-- **Python 3.11+** (3.11 önerilir)
-- macOS / Linux / Windows
-- İnternet (yalnız **Canlı GEE** modu için; Demo modu tamamen offline çalışır)
+HasadHaber combines vegetation indices, phenology signals, and an explainable
+rule engine to answer a practical question: **how many days remain until the
+estimated harvest date?**
 
-## Kurulum ve çalıştırma
+> [!IMPORTANT]
+> This is a research prototype, not an agronomic recommendation system. The
+> bundled demo data and harvest labels are synthetic. Validate the model with
+> local field observations before using its output in operational decisions.
 
-### 1. Repoyu klonla
+## Why this project exists
+
+Harvest timing affects machinery planning, labor, storage, and crop quality.
+Many small agricultural teams do not have a transparent way to combine remote
+sensing signals with field observations. This project keeps the full decision
+path inspectable and provides an offline demo that anyone can reproduce.
+
+## Features
+
+- Parcel-level estimated harvest date, remaining days, growth stage, and
+  confidence score.
+- NDVI, NDMI, and Sentinel-1 VH time-series visualization.
+- Explainable rules that show which signals influenced each estimate.
+- Cooperative view with parcel priority and weekly harvest workload.
+- Offline synthetic-data mode with no account or API credentials required.
+- Optional live Sentinel-1 and Sentinel-2 ingestion through Google Earth
+  Engine.
+- Lead-time backtesting with MAE, RMSE, bias, coverage, and tolerance metrics.
+
+## Quick start
+
+Requirements: Python 3.11 or newer.
 
 ```bash
 git clone https://github.com/BuraakAI/harvest_time_estimate.git
 cd harvest_time_estimate
-```
-
-### 2. Sanal ortam oluştur ve bağımlılıkları kur
-
-```bash
 python3 -m venv .venv
-source .venv/bin/activate          # Windows: .venv\Scripts\activate
-pip install --upgrade pip
-pip install -r requirements.txt
-```
-
-> **Not:** `streamlit` global PATH'te olmayabilir. Komutları **her zaman** sanal ortam
-> aktifken (`source .venv/bin/activate`) veya `.venv/bin/` önekiyle çalıştırın.
-
-### 3. Uygulamayı başlat
-
-```bash
-# Sanal ortam aktifken:
-streamlit run app.py
-
-# veya sanal ortam açmadan (macOS/Linux):
-.venv/bin/streamlit run app.py
-```
-
-Tarayıcıda `http://localhost:8501` açılır.
-
-**`zsh: command not found: streamlit` hatası** alırsanız → sanal ortamı aktifleştirmediniz
-veya `pip install` yapmadınız. Yukarıdaki adım 2'yi tekrarlayın.
-
-### 4. (İsteğe bağlı) Canlı uydu verisi — Google Earth Engine
-
-Demo modu kimlik bilgisi gerektirmez. Gerçek Sentinel-2 için:
-
-```bash
-source .venv/bin/activate
-pip install -r requirements-gee.txt
-earthengine authenticate              # tarayıcıda Google hesabıyla izin ver
-echo "<cloud-proje-id>" > data/ee_project.txt   # örn. vault-501610
+source .venv/bin/activate  # Windows: .venv\Scripts\activate
+python -m pip install --upgrade pip
+python -m pip install -r requirements.txt
 streamlit run app.py
 ```
 
-Sidebar'dan **"Canlı (GEE)"** seçin. İlk çalıştırmada 10 parsel için veri çekilir ve
-`data/cache/` altına önbelleğe alınır (sonraki açılışlar hızlıdır).
+Open `http://localhost:8501`. The default demo generates a realistic synthetic
+season for ten sample parcels and works completely offline.
 
-### 5. Testler ve CLI araçları
+## Run the tests
 
 ```bash
-source .venv/bin/activate
-
-python -m pytest -q                    # 27 birim test
-python -m ml.evaluate                  # backtest özeti (demo veri)
-python -m ml.validate_t207             # T-207 doğrulama tablosu (GEE gerekir)
+python -m pytest -q
 ```
 
-## Proje yapısı
+The suite covers data sources, spectral indices, phenology extraction, the
+rule engine, and evaluation metrics.
 
+## Optional: live Earth Engine data
+
+The demo requires no credentials. To use real Sentinel data:
+
+```bash
+python -m pip install -r requirements-gee.txt
+earthengine authenticate
+export EE_PROJECT="your-google-cloud-project-id"
+streamlit run app.py
 ```
+
+Alternatively, store the project ID in `data/ee_project.txt`. That file and the
+local cache are excluded from Git.
+
+Live mode retrieves cloud-masked `COPERNICUS/S2_SR_HARMONIZED` observations and
+`COPERNICUS/S1_GRD` VH data for each parcel. The core phenology and rule modules
+remain independent of the selected data source.
+
+## Architecture
+
+```text
 harvest_time_estimate/
-├── app.py                 # Streamlit arayüzü (giriş noktası)
-├── core/                  # Veri kaynağı, fenoloji, kural motoru
-├── ml/                    # Backtest ve doğrulama
-├── data/                  # Parseller, etiketler, GEE cache
-└── tests/                 # pytest suite
+├── app.py                 # Streamlit application
+├── core/
+│   ├── datasource.py      # Synthetic and Earth Engine adapters
+│   ├── indices.py         # Vegetation-index calculations
+│   ├── phenology.py       # Smoothing and SOS/POS/EOS extraction
+│   └── rules.py           # Explainable harvest-window rules
+├── ml/
+│   ├── evaluate.py        # Lead-time backtesting
+│   └── validate_t207.py   # Field-validation workflow
+├── data/                  # Sample parcels and synthetic labels
+└── tests/                 # Pytest suite
 ```
 
-## Hızlı başlangıç (özet)
+The current estimator is deliberately rule-based. This makes assumptions and
+failure modes visible while a reliable field-labelled dataset is being built.
+Random forest, gradient boosting, or deep-learning models should only be added
+after sufficient real observations are available.
 
-```bash
-git clone https://github.com/BuraakAI/harvest_time_estimate.git && cd harvest_time_estimate
-python3 -m venv .venv && source .venv/bin/activate
-pip install -r requirements.txt
-streamlit run app.py
-```
+## Evaluation and data transparency
 
-Varsayılan **Demo modu** Çumra için 10 örnek parselde gerçekçi sentetik buğday
-fenolojisi üretir — **hiçbir kimlik bilgisi gerekmez**.
+`python -m ml.evaluate` evaluates predictions at several lead times before the
+recorded harvest date. The included `data/harvest_labels.csv` is synthetic and
+demonstrates the evaluation pipeline—it does **not** establish field accuracy.
 
-## Ne yapıyor?
+Credible validation requires:
 
-1. Haritada parseller hasat yakınlığına göre renklenir (🟢 zaman var · 🟠 ≤21 gün · 🔴 ≤7 gün).
-2. Seçilen parsel için **tahmini hasat tarihi · kalan gün · fenolojik evre · güven skoru** gösterilir.
-3. NDVI / NDMI / VH eğrisi, POS–bugün–tahmini hasat işaretleriyle çizilir.
-4. "Neden bu tahmin?" paneli kuralı ve sinyalleri doğal dilde açıklar (açıklanabilirlik).
-5. "Kooperatif görünümü" sekmesi hasat sırası + haftalık hasat dalgasını verir.
+1. Real harvest dates from growers, cooperatives, or machinery records.
+2. A documented train/validation split across fields and seasons.
+3. Reporting errors by crop, region, season, and observation coverage.
+4. Comparison against simple baselines, not only increasingly complex models.
 
-## Mimari (omurga karşılığı)
+## Project status
 
-| Dosya | Rol | Omurga referansı |
-|---|---|---|
-| `core/datasource.py` | Demo (sentetik) + GEE (gerçek Sentinel-2/S1, tam adaptör) veri kaynağı | `04_TEKNIK_MIMARI §2-3` |
-| `core/indices.py` | NDVI/NDMI/NDRE (canlı mod) | `05_VERI §5` |
-| `core/phenology.py` | Savitzky-Golay + SOS/POS/EOS + eğim | `05_VERI §4, §6` |
-| `core/rules.py` | Kural tabanlı tahmin + 4 bileşenli güven skoru | `05_VERI §7.1`, `04 §7.1` |
-| `app.py` | Streamlit arayüzü | `06_URUN §2` |
+The repository is an early-stage research prototype. Near-term priorities are:
 
-Model sırası **kural → RF → XGBoost → DL** (`05_VERI §7`). Bu sürüm **kural tabanlı**
-ve **etiketsiz** çalışır — dayanağı Sedano 2025 (`12_LITERATUR §3`, doğrulandı ✅).
+- add anonymized, field-validated sample data;
+- document agronomic assumptions and supported crop/region boundaries;
+- add reproducible notebooks for index and phenology inspection;
+- expand tests for missing observations and cloudy seasons;
+- package the reusable core separately from the Streamlit interface.
 
-## Doğruluk ölçümü (backtest)
+## Contributing
 
-`📊 Doğruluk` sekmesi ve `ml/evaluate.py`, tahminleri gerçek hasat tarihiyle
-karşılaştırır (`05_VERI §8`): **MAE, RMSE, ±3/±7/±14 gün isabet, bias, kapsama,
-güven aralığı kapsaması**. Yöntem **lead-time backtest**: her parselin hasat
-tarihinden 40/30/20/10/5 gün önce tahmin üretilir; hasada yaklaştıkça MAE düşmelidir.
+Bug reports, tests, documentation, and agronomy or remote-sensing review are
+welcome. Read [CONTRIBUTING.md](CONTRIBUTING.md) before opening a pull request.
+Please report security issues according to [SECURITY.md](SECURITY.md).
 
-```bash
-python -m ml.evaluate          # CLI özet
-```
+## License
 
-Etiketler `data/harvest_labels.csv` (`parcel_id, season_year, harvest_date, source,
-confidence` — `04 §5` `harvest_labels` tablosu). Şu an **sentetik**; gerçek doğruluk
-için bu dosyaya **saha hasat tarihleri** (üretici/kooperatif/biçerdöver) girilir.
-
-> ⚠️ Sentetik etiketle backtest, ölçüm **kodunun** ve motorun davranışını gösterir —
-> gerçek tarım doğruluğunu **değil**. Gerçek sayı: saha etiketi + Canlı Sentinel-2.
-
-## Testler
-
-```bash
-python -m pytest -q     # 27 test: kural motoru + fenoloji + veri kaynağı + indeksler + değerlendirme
-```
-
-## Canlı moda geçiş (gerçek Sentinel-2, GEE)
-
-`GEEDataSource` **yazıldı ve hazır** (`core/datasource.py`); yalnız kimlik bilgisi gerekiyor:
-
-1. **Hesap:** [code.earthengine.google.com](https://code.earthengine.google.com) → Google
-   hesabınla kaydol (akademik/araştırma ücretsiz). Bir **Google Cloud projesi** oluştur.
-2. **Kurulum:**
-   ```bash
-   pip install -r requirements-gee.txt
-   earthengine authenticate            # tarayıcıda izin
-   export EE_PROJECT=<cloud-proje-id>  # GEE artık proje ister
-   # veya kalıcı olarak: proje kimliğini data/ee_project.txt dosyasına yazın (gitignore'da)
-   ```
-3. **Çalıştır:** `streamlit run app.py` → sidebar'dan **"Canlı (GEE)"** seç. Parsel
-   poligonu ile `COPERNICUS/S2_SR_HARMONIZED`'dan SCL bulut maskeli NDVI/NDMI +
-   `COPERNICUS/S1_GRD` VH çekilir; sezon parsel başına `data/cache/`'e CSV olarak
-   önbelleğe alınır (`today`'e göre kesilir → gelecek sızıntısı yok).
-4. **Doğruluk:** `📊 Doğruluk` sekmesinde "Backtest çalıştır (gerçek GEE)" butonu.
-
-> Çekirdek mantık veri kaynağından bağımsızdır: Demo → GEE geçişi yalnız adaptör
-> değişimidir; `phenology.py`, `rules.py`, `ml/evaluate.py`, `app.py` **değişmez**.
-> Gerçek doğruluk için `data/harvest_labels.csv`'ye **gerçek saha hasat tarihleri** girilir.
-
-## Sınırlar (dürüst)
-
-- Demo verisi **sentetiktir**; doğruluk iddiası taşımaz, veri hattını ve UI'yı gösterir.
-- Gerçek doğruluk (MAE, ±7/±14 gün isabet) ancak saha hasat etiketleriyle ölçülür (`05_VERI §8`).
-- V1 **verim tahmini yapmaz**; yalnız hasat zamanı (`01_VIZYON §6`).
+Licensed under the [Apache License 2.0](LICENSE).

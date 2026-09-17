@@ -1,0 +1,24 @@
+name: Feature request
+description: Suggest an improvement to the project
+title: "[Feature]: "
+labels: [enhancement]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem or use case
+      description: What agricultural or technical problem would this solve?
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed approach
+      description: Include assumptions, expected inputs and outputs, and references.
+    validations:
+      required: true
+  - type: textarea
+    id: validation
+    attributes:
+      label: Validation plan
+      description: How should the change be tested against field or synthetic data?
